@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Server API - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 0;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .api-section {
+            background: white;
+            border-radius: 15px;
+            margin: 30px 0;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .api-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .api-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            background: #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-card h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .data-card p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🚀 JSON Server API</h1>
+            <p class="subtitle">Welcome to your mock API server - Explore the data below</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="api-section" id="users-section">
+            <h2>👥 Users</h2>
+            <div id="users-data" class="data-grid">
+                <div class="loading">Loading users...</div>
+            </div>
+        </section>
+
+        <section class="api-section" id="deposits-section">
+            <h2>💰 Deposits</h2>
+            <div id="deposits-data" class="data-grid">
+                <div class="loading">Loading deposits...</div>
+            </div>
+        </section>
+
+        <section class="api-section" id="members-section">
+            <h2>👨‍👩‍👧‍👦 Members</h2>
+            <div id="members-data" class="data-grid">
+                <div class="loading">Loading members...</div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Powered by JSON Server | Built with ❤️</p>
+        </div>
+    </footer>
+
+    <script>
+        async function fetchData(endpoint, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const response = await fetch(`/${endpoint}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    container.innerHTML = data.map(item => createCard(item, endpoint)).join('');
+                } else {
+                    container.innerHTML = '<div class="error">Data is not an array</div>';
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error">Error loading ${endpoint}: ${error.message}</div>`;
+            }
+        }
+
+        function createCard(item, endpoint) {
+            let content = '';
+            if (endpoint === 'users') {
+                content = `
+                    <h3>${item.name || item.username}</h3>
+                    <p><strong>Email:</strong> ${item.email}</p>
+                    <p><strong>Role:</strong> ${item.role}</p>
+                    <p><strong>Phone:</strong> ${item.phone}</p>
+                `;
+            } else if (endpoint === 'deposits') {
+                content = `
+                    <h3>Deposit #${item.id}</h3>
+                    <p><strong>Amount:</strong> $${item.amount}</p>
+                    <p><strong>Type:</strong> ${item.type}</p>
+                    <p><strong>Method:</strong> ${item.method}</p>
+                    <p><strong>Date:</strong> ${item.date}</p>
+                `;
+            } else if (endpoint === 'members') {
+                content = `
+                    <h3>${item.name}</h3>
+                    <p><strong>Phone:</strong> ${item.phone}</p>
+                    <p><strong>Role:</strong> ${item.role}</p>
+                    <p><strong>Approved:</strong> ${item.approved ? 'Yes' : 'No'}</p>
+                `;
+            }
+            return `<div class="data-card">${content}</div>`;
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData('users', 'users-data');
+            fetchData('deposits', 'deposits-data');
+            fetchData('members', 'members-data');
+        });
+    </script>
+</body>
+</html>
