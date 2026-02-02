@@ -57,7 +57,7 @@
         .api-section h2 {
             color: #667eea;
             margin-bottom: 20px;
-            font-size: 2rem;
+            font-size: 1rem;
         }
 
         .data-grid {
@@ -166,8 +166,8 @@
                 const data = await response.json();
                 
                 if (Array.isArray(data)) {
-                    <!-- container.innerHTML = data.map(item => createCard(item, endpoint)).join(''); -->
-                    container.innerHTML = data.length();
+                    container.innerHTML = data.map(item => createCard(item, endpoint)).join('');
+                  //  container.innerHTML = data.length;
                 } else {
                     container.innerHTML = '<div class="error">Data is not an array</div>';
                 }
